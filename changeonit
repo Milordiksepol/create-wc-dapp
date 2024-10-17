@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WalletConnect Example</title>
+</head>
+<body>
+  <h1>Connect to Wallet with WalletConnect</h1>
+  <button id="connectWallet">Connect Wallet</button>
+  <p id="walletAddress"></p>
+
+  <script src="https://unpkg.com/web3modal"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider"></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.3.0/dist/web3.min.js"></script>
+
+  <script>
+    // Include Web3Modal to connect different wallets
+    const providerOptions = {
+      walletconnect: {
+        package: WalletConnectProvider, // Required
+        options: {
+          infuraId: "INFURA_PROJECT_ID", // Replace with your own Infura ID
+        }
+      }
+    };
+
+    const web3Modal = new Web3Modal({
+      cacheProvider: false, // Disable caching for this example
+      providerOptions, // Pass provider options
+    });
+
+    let web3;
+    let provider;
+
+    // Button click handler
+    document.getElementById('connectWallet').addEventListener('click', async () => {
+      try {
+        // Open WalletConnect modal
+        provider = await web3Modal.connect();
+
+        // Set Web3 provider
+        web3 = new Web3(provider);
+
+        // Get accounts
+        const accounts = await web3.eth.getAccounts();
+        const walletAddress = accounts[0];
+        
+        // Show wallet address
+        document.getElementById('walletAddress').innerText = `Connected Wallet Address: ${walletAddress}`;
+
+        // Handle session events
+        provider.on("accountsChanged", (accounts) => {
+          document.getElementById('walletAddress').innerText = `Connected Wallet Address: ${accounts[0]}`;
+        });
+      } catch (error) {
+        console.error("Could not connect to wallet:", error);
+      }
+    });
+  </script>
+</body>
+</html>
